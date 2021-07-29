@@ -1,6 +1,6 @@
 # Reverse Homology
 
-Reverse homology is a self-supervised protein representation learning method that purposes principles in comparative proteomics as a learning signal for our models. Given a subset of homologous IDRs (obtained automatically), our model is asked to pick out a held-out homolog from the same family, from a large set of sequences where the other sequences are not homologous. This task, which we call reverse homology, requires our model to learn conserved features of IDRs directly from their sequences, in order to distinguish them from non-homologous background sequences.
+Reverse homology is a self-supervised protein representation learning method that purposes principles in comparative genomics as a learning signal for our models. Given a subset of homologous IDRs (obtained automatically), our model is asked to pick out a held-out homolog from the same family, from a large set of sequences where the other sequences are not homologous. This task, which we call reverse homology, requires our model to learn conserved features of IDRs directly from their sequences, in order to distinguish them from non-homologous background sequences.
 
 ![Architecture](architecture.png)
 
