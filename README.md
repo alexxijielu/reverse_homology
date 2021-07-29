@@ -12,7 +12,7 @@ We trained two models, one for yeast IDRs, and another for human IDRs. The data 
 
 zenodo.org/record/5146063
 
-# Training and dataset loading
+# Training and Dataset Loading
 
 Training scripts for the respective models are provided in each folder. 
 
@@ -20,7 +20,7 @@ The opts.py file lets you specify training parameters, as well as where to save 
 
 The dataset_repeat_pad.py file contains a Dataset object that loads fasta files into memory, and preprocesses them into one-hot encoding and batches for neural network training. The model_scaled_final.py file contains the architecture, as shown in the above figure. The train.py file includes the training loop.
 
-# Feature extraction
+# Feature Extraction
 
 Scripts for extracting features from trained models are included in the "feature_extraction" folder. For the yeast model, we provide scripts to extract features from the final fully connected and convolutional target encoder layers. For the human model, we provide scripts to extract features from the final convolutional target encoder layer.
 
