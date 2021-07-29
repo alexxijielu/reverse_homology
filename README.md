@@ -8,9 +8,7 @@ A summary of the architecture and training task is shown above. A) At the top, w
 
 # Data Download
 
-We trained two models, one for yeast IDRs, and another for human IDRs. The data used to train these models (and subsequentially extract features and interpretations from) can be found at the Zenodo link here:
-
-zenodo.org/record/5146063
+We trained two models, one for yeast IDRs, and another for human IDRs. The data used to train these models (and subsequentially extract features and interpretations from) can be found at the Zenodo link here: zenodo.org/record/5146063
 
 # Training and Dataset Loading
 
@@ -18,7 +16,20 @@ Training scripts for the respective models are provided in each folder.
 
 The opts.py file lets you specify training parameters, as well as where to save the model (checkpoint_path) and where to retrive the data (data_path). 
 
-The dataset_repeat_pad.py file contains a Dataset object that loads fasta files into memory, and preprocesses them into one-hot encoding and batches for neural network training. The model_scaled_final.py file contains the architecture, as shown in the above figure. The train.py file includes the training loop.
+The dataset_repeat_pad.py file contains a Dataset object that loads fasta files into memory, and preprocesses them into one-hot encoding and batches for neural network training. Some key functions:
+<ul>
+  <li><b>add_dataset</b>: Loads a directory of fasta files into the dataset object. This should be pointed at the directories of fasta files available at the Zenodo link in Data Download. Note that this function will filter out fasta files with fewer species than the "min_count" variable at object initialization, and remove any alignment symbols "-" from the input sequences (the model trains on un-aligned sequences.)</li>
+  <li><b>load_list</b>: Loads input batches for training the neural network. To train the model faster, we use a single contrastive set for all query sequences in a batch: the homologous sequence in the target set for one query sequence become non-homologous sequences for other query sequences. This function will organize it for you given a list of indices of IDRs (inside the object's data container) to include in the query set batch. Note that this model also produces a "mask" vector (which is inputted into the model, but not actually used - this is from previous versions where I was masking out a padding token instead of padding the sequence itself to fill up the entire input, and was used to mask out activations from padded positions, but I never formally depreciated it as versions developed.)</li>
+   <li><b>load_sequences_with_length_and_species</b>: Load all sequences for a given homology family as one-hot vectors, along with metadata (length of sequences, and species associated with each sequence. Used for post-training feature extraction.</li>
+</ul> 
+
+The model_scaled_final.py file contains the architecture, as shown in the above figure. Some implementation details:
+<ul> 
+  <li>Since we use a single target set for a batch of query sequences, the batch sizes for the query and target sequence inputs into the model are uneven. Unfortunately, Keras does not permit this natively, so to get around this behavior, the inputs are encoded as a single batch of batches, and then the first dimension of size 1 is removed before the model proceeds.</li>
+  <li>The target and query sequences are inputted as 2D matrix, with the amino acids of the sequences being one axis and the number of sequences being the other axis. We implement the convolutional filters as 2D convolutions, but set the width of the kernel along the species axis to 1 (so the kernel only scans a single sequence at a time.)</li>
+</ul>
+
+The train.py file includes the training loop. We have modified versions of some losses and metrics to adjust for the fact that our inputs have an additional dimension tacked on at the start to standardize the batch sizes: these are identical to the native Keras losses/metrics except to handle this additional dimension. 
 
 # Feature Extraction
 
