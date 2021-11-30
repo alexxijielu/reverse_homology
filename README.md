@@ -18,4 +18,4 @@ Tutorials on how to train a model, extract and visualize features as sequence lo
 
 To make browsing of our mutational scanning outputs (see Tutorial 3) more intuitive/convenient, we provide an interactive local webapp in the /mutational_scanning_webapp/ subdirectory. A sample output (the mutational scanning maps for p27-KID) is provided in this directory as well. See the below gif for a preview of how the app works! Note that the app is entirely local on your machine and thus requires you to install additional dependencies listed in /mutational_scanning_webapp/webapp_requirements.txt
 
-![Webapp](webapp_animation.png)
+![Webapp](webapp_animation.gif)
