@@ -96,7 +96,7 @@ if __name__ == "__main__":
     model.compile(optimizer=optimizer, loss=custom_categorical_crossentropy, metrics=['accuracy', precision_m, recall_m])
  
     csv_logger = CSVLogger(opt.checkpoint_path + "model_history_log.csv", append=True)
-    saver = ModelCheckpoint(filepath=opt.checkpoint_path + "{epoch:02d}_weights.h5", verbose=False, period=200)
+    saver = ModelCheckpoint(filepath=opt.checkpoint_path + "{epoch:02d}_weights.h5", verbose=False, period=opt.save_period)
     model.fit_generator(train_generator, steps_per_epoch=steps, epochs=opt.epochs, use_multiprocessing=False, callbacks=[saver, csv_logger])
 
     print("Saving model weights in " + opt.checkpoint_path)

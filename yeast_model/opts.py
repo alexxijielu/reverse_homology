@@ -7,6 +7,7 @@ min_count = ref_size + 1
 batch_size = 64
 learning_rate = 1e-4
 epochs = 10000
+save_period = 200
 
 checkpoint_path = './yeast_idr_model/'
 data_path = './sc_idr_alignments/'
