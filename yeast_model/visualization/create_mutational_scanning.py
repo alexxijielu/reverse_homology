@@ -230,7 +230,7 @@ if __name__ == "__main__":
                     df = pd.DataFrame(letter_scale, columns=amino_acids)
 
                     fig, ax = plt.subplots()
-                    fig.set_size_inches(curr_len * 0.25, 5)
+                    fig.set_size_inches(np.clip(curr_len, 0, 255) * 0.25, 5)
                     ax.spines['right'].set_visible(False)
                     ax.spines['top'].set_visible(False)
                     ax.set_yticklabels([str(-x) for x in ax.get_yticks()])
@@ -308,7 +308,7 @@ if __name__ == "__main__":
                             if curr_len > 256 and n_letters == 128:
                                 aa_count == curr_len - 128
 
-                        plot = plt.subplots(figsize=(0.5 * curr_len, 10))
+                        plot = plt.subplots(figsize=(0.5 * np.clip(curr_len, 0, 255), 10))
                         fig, ax = plot[0], plot[1]
                         im, cbar = heatmap(curr_map[0:curr_len, :].T, ax=ax, cmap="bwr", vmin=-hscale, vmax=hscale,
                                            aspect=1.0)
@@ -337,7 +337,7 @@ if __name__ == "__main__":
                             hscale = hscale_value
                         else:
                             hscale = np.max(np.abs(curr_map[0:curr_len, :]))
-                        plot = plt.subplots(figsize=(0.5 * curr_len, 10))
+                        plot = plt.subplots(figsize=(0.5 * np.clip(curr_len, 0, 255), 10))
                         fig, ax = plot[0], plot[1]
                         im, cbar = heatmap(curr_map[0:curr_len, :].T, ax=ax, cmap="bwr", vmin=-hscale, vmax=hscale,
                                            aspect=1.0)
@@ -397,7 +397,7 @@ if __name__ == "__main__":
                     df = pd.DataFrame(letter_scale, columns=amino_acids)
 
                     fig, ax = plt.subplots()
-                    fig.set_size_inches(curr_len * 0.5, 10)
+                    fig.set_size_inches(np.clip(curr_len, 0, 255) * 0.5, 10)
                     logo = logomaker.Logo(df, ax=ax, font_name='Verdana',
                                           stack_order="small_on_top", flip_below=False)
                     plt.savefig(outdir + "F" + filter_idx + "_" + filter_type + "_mutation_map.png")
