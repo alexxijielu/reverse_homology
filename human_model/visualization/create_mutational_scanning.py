@@ -40,7 +40,7 @@ if __name__ == "__main__":
     filters_of_interest = [482]  # If autoselect_filters = False, take the specified filters instead (for all IDRs)
 
     # File of features from proteome to generate z-scores to select significant features from
-    z_score_file = "../human_idr_model/human_idr_features.h5"
+    z_score_file = "/home/moseslab/reverse_homology_visualization/human_prosite_idr_model_final/human_idr_features.txt"
 
     # Options only for if save_webapp is False (scales the PNGs)
     set_hscale = False  # False to automatically scale heat maps to max values
@@ -198,11 +198,12 @@ if __name__ == "__main__":
 
                     xlabels = []
                     aa_count = start
-                    if start == 1 and remove_M == True:
-                        aa_count += 1
+                    n_letters = 0
                     for x in curr_sequence[0:curr_len]:
                         xlabels.append(x + "\n" + str(aa_count))
                         aa_count += 1
+                        if curr_len > 256 and n_letters == 128:
+                            aa_count == curr_len - 128
 
                     if filter_type == "Max":
                         np.save(outdir + "F" + filter_idx + "_max_heat_map.npy", curr_map[0:curr_len, :])
@@ -279,7 +280,7 @@ if __name__ == "__main__":
                     cbar = ax.figure.colorbar(im, cax=cax)
 
                     return im, cbar
-
+                
                 # Create heat maps for the specific indices that we need
                 filter_averages = []  # Store the averages across position for each filter
                 for f in curr_filters:
@@ -300,11 +301,12 @@ if __name__ == "__main__":
 
                         xlabels = []
                         aa_count = start
-                        if start == 1:
-                            aa_count += 1
+                        n_letters = 0
                         for x in curr_sequence[0:curr_len]:
                             xlabels.append(x + "\n" + str(aa_count))
                             aa_count += 1
+                            if curr_len > 256 and n_letters == 128:
+                                aa_count == curr_len - 128
 
                         plot = plt.subplots(figsize=(0.5 * curr_len, 10))
                         fig, ax = plot[0], plot[1]
@@ -312,7 +314,7 @@ if __name__ == "__main__":
                                            aspect=1.0)
                         ax.set_yticks(np.arange(len(amino_acids)))
                         ax.set_yticklabels(amino_acids)
-                        ax.set_xticks(np.arange(curr_len))
+                        ax.set_xticks(np.arange(len(curr_sequence)))
                         ax.set_xticklabels(xlabels)
                         ax.tick_params(axis='both', which='major', labelsize=12)
                         plt.savefig(outdir + "F" + filter_idx + "_MAX_letter_map.png")
@@ -324,9 +326,12 @@ if __name__ == "__main__":
                     if filter_type == "Average":
                         xlabels = []
                         aa_count = start
+                        n_letters = 0
                         for x in curr_sequence[0:curr_len]:
                             xlabels.append(x + "\n" + str(aa_count))
                             aa_count += 1
+                            if curr_len > 256 and n_letters == 128:
+                                aa_count == curr_len - 128
 
                         if set_hscale:
                             hscale = hscale_value
@@ -338,13 +343,66 @@ if __name__ == "__main__":
                                            aspect=1.0)
                         ax.set_yticks(np.arange(len(amino_acids)))
                         ax.set_yticklabels(amino_acids)
-                        ax.set_xticks(np.arange(curr_len))
+                        ax.set_xticks(np.arange(len(curr_sequence)))
                         ax.set_xticklabels(xlabels)
                         ax.tick_params(axis='both', which='major', labelsize=12)
                         plt.savefig(outdir + "F" + filter_idx + "_AVERAGE_letter_map.png")
                         plt.close()
                         filter_averages.append(
                             [filter_type + " " + filter_idx, np.mean(curr_map[0:curr_len, :].T, axis=0)])
+                        
+                zscore_output = open(outdir + "zscores.txt", "w")
+                zscore_output.write("Feature\tZ-Score\n")
+                for f in range(0, len(curr_filters)):
+                    if curr_filters[f] < n_features:
+                        filter_type = "Max"
+                        filter_idx = str(curr_filters[f])
+                    else:
+                        filter_type = "Average"
+                        filter_idx = str(curr_filters[f] - n_features)
+                    zscore_output.write(filter_type + " " + filter_idx + "\t" + str(curr_zscores[f]) + "\n")
+                zscore_output.close()
+
+                filter_averages = []  # Store the averages across position for each filter
+                for f in curr_filters:
+                    if f < n_features:
+                        filter_type = "Max"
+                        filter_idx = str(f)
+                        curr_map = max_map[f, :, sorted_indices].T
+                    else:
+                        filter_type = "Average"
+                        filter_idx = str(f - n_features)
+                        curr_map = avg_map[f - n_features, :, sorted_indices].T
+
+                    # Calculate the magnitude of the letters at each position
+                    window = curr_map[0:curr_len, :]
+                    magnitudes = np.sum(-window, axis=1)
+
+                    # Calculate the probability according to whether it improves or decreases at each position
+                    probs = np.zeros_like(window)
+                    for p in range(0, len(magnitudes)):
+                        m = magnitudes[p]
+                        if m >= 0:
+                            curr_pos = window[p]
+                            curr_pos = (curr_pos - np.min(curr_pos)) / (np.max(curr_pos) - np.min(curr_pos)) * 10
+                            probs[p] = np.exp(curr_pos) / np.sum(np.exp(curr_pos))
+                        else:
+                            curr_pos = window[p]
+                            curr_pos = (curr_pos - np.min(curr_pos)) / (np.max(curr_pos) - np.min(curr_pos)) * 10
+                            probs[p] = np.exp(-curr_pos) / np.sum(np.exp(-curr_pos))
+                    probs = np.nan_to_num(probs)
+
+                    # Calculate the final size of each letter
+                    letter_scale = probs * magnitudes[:, None]
+                    df = pd.DataFrame(letter_scale, columns=amino_acids)
+
+                    fig, ax = plt.subplots()
+                    fig.set_size_inches(curr_len * 0.5, 10)
+                    logo = logomaker.Logo(df, ax=ax, font_name='Verdana',
+                                          stack_order="small_on_top", flip_below=False)
+                    plt.savefig(outdir + "F" + filter_idx + "_" + filter_type + "_mutation_map.png")
+                    plt.close()
+                    filter_averages.append([filter_type + " " + filter_idx, np.sum(curr_map[0:curr_len, :].T, axis=0)])
 
                 zscore_output = open(outdir + "zscores.txt", "w")
                 zscore_output.write("Feature\tZ-Score\n")
@@ -355,6 +413,12 @@ if __name__ == "__main__":
                     else:
                         filter_type = "Average"
                         filter_idx = str(curr_filters[f] - n_features)
+                    zscore_output.write(filter_type + " " + filter_idx + "\t" + str(curr_zscores[f]) + "\n")
+                zscore_output.close()
+
+
+
+
                     zscore_output.write(filter_type + " " + filter_idx + "\t" + str(curr_zscores[f]) + "\n")
                 zscore_output.close()
 
