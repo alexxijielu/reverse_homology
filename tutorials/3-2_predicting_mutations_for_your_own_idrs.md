@@ -47,6 +47,8 @@ Additional "advanced" options are explained at the end of this tutorial.
 Run:
 > python create_mutational_scanning.py
 
+This should take a few minutes depending on your hardware.
+
 The outputs from this model can be downloaded as a directory to your
 local machine and used to run the create_website.py code used in Tutorial
 3.1 to visualize the sequences. Happy exploring!
