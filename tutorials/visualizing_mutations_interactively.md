@@ -64,4 +64,4 @@ See the paper for more specific definitions.
 
 The animation below probably explains it better...
 
-![Webapp](webapp_animation.gif)
+![Webapp](../webapp_animation.gif)
