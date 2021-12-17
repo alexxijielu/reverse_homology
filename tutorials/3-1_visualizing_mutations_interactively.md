@@ -3,7 +3,8 @@
 ## Overview
 
 This tutorial will instruct users on how to visualize the mutations in 
-the N-terminal IDR of p27 (p27-KID) that impact the features that most
+the N-terminal IDR of p27, known as the kinase inhibitory domain (we 
+refer to this IDR as p27-KID), that impact the features that most
 distinguish this IDR from other IDRs in our model. In other words, this
 tutorial instructs on how to produce what we call "mutational scanning 
 maps" in our paper. Note that this tutorial focuses on p27-KID 
@@ -24,17 +25,18 @@ local machine.
 
 ## Step 1: Boot the web-app
 
-Next `/mutational_scanning_webapp/create_website.txt` contains all of 
+Next `/mutational_scanning_webapp/create_website.py` contains all of 
 the code you need to run the web-app. 
 
 Modify line 15 to point to the files for the IDR you want to visualize:
 > idrpath = './p27kid/'
 
 (This points to the files for p27-kid provided in the Github repository
-by default, so no changes are needed for this tutorial.)
+by default, so no changes are needed for this tutorial. You will need 
+to unzip the file in the Github repository.)
 
 Next, simply run the code:
-> python create_website.txt
+> python create_website.py
 
 If the code successfully runs, you will see the following lines (or
 something similar) in your console/stdout:
@@ -64,4 +66,4 @@ See the paper for more specific definitions.
 
 The animation below probably explains it better...
 
-![Webapp](../webapp_animation.gif)
+![Webapp](webapp_animation.gif)
