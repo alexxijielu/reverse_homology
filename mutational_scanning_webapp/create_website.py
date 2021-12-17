@@ -53,7 +53,7 @@ amino_acids = amino_acids[sorted_indices]
 
 app = dash.Dash()
 app.layout = html.Div(children=[
-    html.H1(children='Mutational Scanning Summary for hnRNP A1 IDR (182 to 372)',
+    html.H1(children='Mutational Scanning Summary',
             style={'textAlign': 'center', 'font-family': "Helvetica"}),
     html.Div(
         [
